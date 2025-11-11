@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FraudGuard BFSI - Banking Fraud Detection{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark professional-navbar">
+        <div class="container-xxl">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+                <i class="fas fa-shield-alt me-2 fa-lg"></i>
+                <span class="brand-text">FraudGuard BFSI</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+                    {% if current_user %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('dashboard') }}">
+                                <i class="fas fa-chart-line me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('predict') }}">
+                                <i class="fas fa-flask me-1"></i>Predict
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('history') }}">
+                                <i class="fas fa-history me-1"></i>History
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('chatbot') }}">
+                                <i class="fas fa-comments me-1"></i>Chat
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-user-circle me-1"></i>{{ current_user.name }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{{ url_for('about') }}">
+                                    <i class="fas fa-info-circle me-2"></i>About
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('logout') }}">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                                </a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('about') }}">
+                                <i class="fas fa-info-circle me-1"></i>About
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">
+                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light ms-2" href="{{ url_for('signup') }}">
+                                <i class="fas fa-user-plus me-1"></i>Sign Up
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="container-fluid mt-3">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show animate__animated animate__fadeIn" role="alert">
+                        <i class="fas fa-{{ 'exclamation-circle' if category in ['danger', 'error'] else 'check-circle' if category == 'success' else 'info-circle' }} me-2"></i>
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="container-xxl py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-section mt-5">
+        <!-- Main Footer Content -->
+        <div class="footer-main py-5 border-bottom">
+            <div class="container-xxl">
+                <div class="row g-4">
+                    <!-- Company Info -->
+                    <div class="col-lg-3 col-md-6">
+                        <div class="footer-brand mb-4">
+                            <h5 class="fw-bold text-white mb-3">
+                                <i class="fas fa-shield-alt me-2 text-secondary"></i>FraudGuard BFSI
+                            </h5>
+                            <p class="footer-description">Enterprise-grade banking fraud detection powered by AI and real-time analytics. Protecting financial institutions since 2024.</p>
+                        </div>
+                        <div class="social-links">
+                            <a href="https://linkedin.com" class="footer-social-link" title="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                            <a href="https://twitter.com" class="footer-social-link" title="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="https://github.com" class="footer-social-link" title="GitHub">
+                                <i class="fab fa-github"></i>
+                            </a>
+                            <a href="mailto:info@fraudguard.com" class="footer-social-link" title="Email">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="col-lg-2 col-md-6">
+                        <h6 class="footer-section-title text-white fw-bold mb-4">
+                            <i class="fas fa-link me-2 text-secondary"></i>Quick Links
+                        </h6>
+                        <ul class="footer-links list-unstyled">
+                            <li><a href="{{ url_for('about') }}" class="footer-link">About Us</a></li>
+                            <li><a href="{{ url_for('dashboard') }}" class="footer-link">Dashboard</a></li>
+                            <li><a href="{{ url_for('predict') }}" class="footer-link">Fraud Detection</a></li>
+                            <li><a href="{{ url_for('history') }}" class="footer-link">Transaction History</a></li>
+                            <li><a href="{{ url_for('chatbot') }}" class="footer-link">AI Assistant</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Products & Services -->
+                    <div class="col-lg-2 col-md-6">
+                        <h6 class="footer-section-title text-white fw-bold mb-4">
+                            <i class="fas fa-cogs me-2 text-secondary"></i>Services
+                        </h6>
+                        <ul class="footer-links list-unstyled">
+                            <li><a href="#" class="footer-link">Real-Time Detection</a></li>
+                            <li><a href="#" class="footer-link">Risk Analytics</a></li>
+                            <li><a href="#" class="footer-link">API Integration</a></li>
+                            <li><a href="#" class="footer-link">24/7 Monitoring</a></li>
+                            <li><a href="#" class="footer-link">Custom Reports</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Contact & Support -->
+                    <div class="col-lg-2 col-md-6">
+                        <h6 class="footer-section-title text-white fw-bold mb-4">
+                            <i class="fas fa-headset me-2 text-secondary"></i>Support
+                        </h6>
+                        <ul class="footer-links list-unstyled">
+                            <li><a href="#" class="footer-link">Help Center</a></li>
+                            <li><a href="#" class="footer-link">Documentation</a></li>
+                            <li><a href="#" class="footer-link">API Docs</a></li>
+                            <li><a href="#" class="footer-link">Contact Support</a></li>
+                            <li><a href="#" class="footer-link">Status Page</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Legal & Compliance -->
+                    <div class="col-lg-3 col-md-6">
+                        <h6 class="footer-section-title text-white fw-bold mb-4">
+                            <i class="fas fa-gavel me-2 text-secondary"></i>Legal & Compliance
+                        </h6>
+                        <ul class="footer-links list-unstyled mb-4">
+                            <li><a href="#" class="footer-link">Privacy Policy</a></li>
+                            <li><a href="#" class="footer-link">Terms of Service</a></li>
+                            <li><a href="#" class="footer-link">Security</a></li>
+                            <li><a href="#" class="footer-link">Compliance</a></li>
+                        </ul>
+                        <div class="compliance-badges">
+                            <span class="compliance-badge">
+                                <i class="fas fa-certificate me-1"></i>ISO 27001
+                            </span>
+                            <span class="compliance-badge">
+                                <i class="fas fa-certificate me-1"></i>GDPR
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Bottom -->
+        <div class="footer-bottom py-4">
+            <div class="container-xxl">
+                <div class="row align-items-center">
+                    <div class="col-md-6 text-center text-md-start">
+                        <p class="footer-copyright mb-2 mb-md-0">
+                            &copy; 2024 <strong>FraudGuard BFSI</strong>. All rights reserved.
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-center text-md-end">
+                        <p class="footer-tagline mb-0">
+                            <i class="fas fa-rocket me-1 text-secondary"></i>
+                            Powered by <strong>Advanced AI</strong> & <strong>Real-Time Analytics</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Support Widget -->
+        <div class="floating-support">
+            <a href="{{ url_for('chatbot') }}" class="support-btn" title="Chat Support">
+                <i class="fas fa-comments"></i>
+                <span class="support-badge">24/7</span>
+            </a>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

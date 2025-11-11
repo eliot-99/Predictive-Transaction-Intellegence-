@@ -1,0 +1,32 @@
+{
+  "version": 2,
+  "name": "fraudguard-webapp",
+  "builds": [
+    {
+      "src": "WebApp/wsgi.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb"
+      }
+    },
+    {
+      "src": "WebApp/static/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/static/(.*)",
+      "dest": "WebApp/static/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "WebApp/wsgi.py"
+    }
+  ],
+  "env": {
+    "FLASK_ENV": "production",
+    "PYTHONUNBUFFERED": "true"
+  },
+  "regions": ["iad1"]
+}

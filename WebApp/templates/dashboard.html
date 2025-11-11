@@ -1,0 +1,713 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - FraudGuard BFSI{% endblock %}
+
+{% block content %}
+    <!-- Welcome Header -->
+    <div class="page-header mb-4">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="header-content animate__animated animate__fadeInDown">
+                    <h1 class="display-6 fw-bold text-primary">
+                        <i class="fas fa-chart-line me-3"></i>Dashboard
+                    </h1>
+                    <p class="page-description">
+                        <i class="fas fa-user-circle me-2"></i>Welcome back, <span class="fw-bold">{{ current_user.name or 'User' }}</span>
+                        <span class="time-greeting ms-3 text-muted small"></span>
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ url_for('predict') }}" class="btn btn-primary btn-lg fw-bold btn-icon-hover">
+                    <i class="fas fa-flask me-2"></i>Quick Predict
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Primary KPI Cards - Row 1 -->
+    <div class="row g-4 mb-5">
+        <!-- Today's Transactions -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card stat-card-primary h-100 animate__animated animate__fadeInUp">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-calendar-day me-1"></i>Today's Transactions
+                            </p>
+                            <h2 class="display-6 fw-bold text-primary mb-0 kpi-number" data-target="{{ today_count }}">0</h2>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-primary" style="width: 45%;"></div>
+                            </div>
+                        </div>
+                        <div class="icon-circle bg-primary icon-glow">
+                            <i class="fas fa-exchange-alt text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-info-circle me-1 text-primary"></i>
+                        <small>Processed securely</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Fraud Rate -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card stat-card-danger h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-exclamation-triangle me-1"></i>Fraud Rate
+                            </p>
+                            <h2 class="display-6 fw-bold text-danger mb-0 kpi-number" data-target="{{ fraud_rate }}">0</h2>
+                            <span class="small text-muted">%</span>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-danger" style="width: {{ fraud_rate }}%;"></div>
+                            </div>
+                        </div>
+                        <div class="icon-circle bg-danger icon-glow">
+                            <i class="fas fa-fire text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-arrow-{% if fraud_rate > 10 %}up text-danger{% else %}down text-success{% endif %} me-1"></i>
+                        <small>{% if fraud_rate > 10 %}Higher{% else %}Lower{% endif %} than average</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- High-Risk Alerts -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card stat-card-warning h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-bell me-1"></i>High-Risk Alerts
+                            </p>
+                            <h2 class="display-6 fw-bold text-warning mb-0 kpi-number" data-target="{{ high_risk }}">0</h2>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-warning" style="width: 60%;"></div>
+                            </div>
+                        </div>
+                        <div class="icon-circle bg-warning icon-glow">
+                            <i class="fas fa-exclamation-circle text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-clipboard-check me-1 text-warning"></i>
+                        <small>Pending review</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Risk Score -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card stat-card-success h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-tachometer-alt me-1"></i>Avg. Risk Score
+                            </p>
+                            <h2 class="display-6 fw-bold text-success mb-0">
+                                <span class="kpi-decimal" data-target="{{ avg_risk }}">0</span>
+                            </h2>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-success" style="width: {% if avg_risk < 0.5 %}25{% elif avg_risk < 0.7 %}50{% else %}75{% endif %}%;"></div>
+                            </div>
+                        </div>
+                        <div class="icon-circle bg-success icon-glow">
+                            <i class="fas fa-shield-alt text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-check-circle me-1 text-success"></i>
+                        <small>Out of 1.0</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary KPI Cards - Row 2 -->
+    <div class="row g-4 mb-5">
+        <!-- Legitimate Transactions -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card stat-card-info h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-check-double me-1"></i>Legitimate Transactions
+                            </p>
+                            <h2 class="display-6 fw-bold text-info mb-0 kpi-number" data-target="{{ today_count - (today_count * fraud_rate / 100) | int }}">0</h2>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-info" style="width: 85%;"></div>
+                            </div>
+                        </div>
+                        <div class="icon-circle bg-info icon-glow">
+                            <i class="fas fa-thumbs-up text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-percent me-1 text-info"></i>
+                        <small>{{ (((today_count - (today_count * fraud_rate / 100)) / today_count * 100) if today_count > 0 else 0) | round(1) }}% of total</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prevention Rate -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card stat-card-gradient h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.5s;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-shield-check me-1"></i>Prevention Rate
+                            </p>
+                            <h2 class="display-6 fw-bold text-gradient mb-0">99.1<span class="small">%</span></h2>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-gradient" style="width: 99.1%; background: linear-gradient(90deg, #003087 0%, #00A3E0 100%);"></div>
+                            </div>
+                        </div>
+                        <div class="icon-circle bg-gradient-circle icon-glow">
+                            <i class="fas fa-lock text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-check-circle me-1"></i>
+                        <small>Model performance</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Avg Transaction Amount -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card stat-card-secondary h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.6s;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-wallet me-1"></i>Avg. Transaction
+                            </p>
+                            <h2 class="display-6 fw-bold text-secondary mb-0">
+                                <span class="small">UZS</span> <span class="kpi-number" data-target="2500">0</span>
+                            </h2>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-secondary" style="width: 55%;"></div>
+                            </div>
+                        </div>
+                        <div class="icon-circle bg-secondary icon-glow">
+                            <i class="fas fa-coins text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-chart-area me-1 text-secondary"></i>
+                        <small>Average value</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Model Confidence -->
+        <div class="col-md-6 col-lg-3">
+            <div class="card stat-card stat-card-tertiary h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.7s;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <p class="text-muted small mb-1">
+                                <i class="fas fa-brain me-1"></i>ML Confidence
+                            </p>
+                            <h2 class="display-6 fw-bold text-tertiary mb-0">96.8<span class="small">%</span></h2>
+                            <div class="progress mt-2" style="height: 4px;">
+                                <div class="progress-bar bg-tertiary" style="width: 96.8%;"></div>
+                            </div>
+                        </div>
+                        <div class="icon-circle bg-tertiary icon-glow">
+                            <i class="fas fa-star text-white"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">
+                        <i class="fas fa-trend-up me-1"></i>
+                        <small>Prediction accuracy</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row g-4 mb-5">
+        <!-- Fraud Probability Trend Chart -->
+        <div class="col-lg-8">
+            <div class="card card-chart h-100 animate__animated animate__fadeInLeft">
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-primary">
+                            <i class="fas fa-chart-line me-2"></i>Fraud Probability - Last 24 Hours
+                        </h5>
+                        <small class="badge bg-primary bg-opacity-10 text-primary">
+                            <i class="fas fa-sync-alt me-1"></i>Real-time
+                        </small>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="fraudChart" height="80"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Status Board -->
+        <div class="col-lg-4">
+            <div class="card card-status h-100 animate__animated animate__fadeInRight">
+                <div class="card-header py-3">
+                    <h5 class="mb-0 fw-bold text-primary">
+                        <i class="fas fa-heartbeat me-2"></i>System Status
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="status-list">
+                        <div class="status-item">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="status-label fw-600">
+                                    <i class="fas fa-shield-alt me-2 text-primary"></i>Security Score
+                                </span>
+                                <span class="badge bg-success status-badge-glow">
+                                    {% if avg_risk < 0.3 %}Excellent{% elif avg_risk < 0.6 %}Good{% else %}Fair{% endif %}
+                                </span>
+                            </div>
+                            <div class="progress status-progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: {% if avg_risk < 0.3 %}90{% elif avg_risk < 0.6 %}70{% else %}50{% endif %}%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="status-item mt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="status-label fw-600">
+                                    <i class="fas fa-brain me-2 text-info"></i>Model Accuracy
+                                </span>
+                                <span class="badge bg-primary status-badge-glow">99.1% AUC</span>
+                            </div>
+                            <div class="progress status-progress" style="height: 6px;">
+                                <div class="progress-bar bg-primary" style="width: 99.1%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="status-item mt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="status-label fw-600">
+                                    <i class="fas fa-server me-2 text-warning"></i>API Status
+                                </span>
+                                <span class="badge bg-success status-badge-glow">
+                                    <i class="fas fa-check-circle me-1"></i>Live
+                                </span>
+                            </div>
+                            <div class="pulse-indicator"></div>
+                        </div>
+
+                        <div class="status-item mt-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="status-label fw-600">
+                                    <i class="fas fa-database me-2 text-danger"></i>Database
+                                </span>
+                                <span class="badge bg-success status-badge-glow">
+                                    <i class="fas fa-check-circle me-1"></i>Connected
+                                </span>
+                            </div>
+                            <div class="pulse-indicator"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Analytics Section -->
+    <div class="row g-4 mb-5">
+        <!-- Risk Distribution -->
+        <div class="col-lg-4">
+            <div class="card card-analytics h-100 animate__animated animate__fadeInLeft" style="animation-delay: 0.2s;">
+                <div class="card-header py-3">
+                    <h5 class="mb-0 fw-bold text-primary">
+                        <i class="fas fa-chart-pie me-2"></i>Risk Distribution
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height: 250px;">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Breakdown -->
+        <div class="col-lg-4">
+            <div class="card card-analytics h-100 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+                <div class="card-header py-3">
+                    <h5 class="mb-0 fw-bold text-primary">
+                        <i class="fas fa-exchange-alt me-2"></i>Transaction Breakdown
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="breakdown-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>
+                                <i class="fas fa-check-circle me-2 text-success"></i>
+                                <strong>Legitimate</strong>
+                            </span>
+                            <span class="badge bg-success">{{ today_count - (today_count * fraud_rate / 100) | int }}</span>
+                        </div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>
+                                <i class="fas fa-exclamation-circle me-2 text-danger"></i>
+                                <strong>Fraudulent</strong>
+                            </span>
+                            <span class="badge bg-danger">{{ (today_count * fraud_rate / 100) | int }}</span>
+                        </div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>
+                                <i class="fas fa-hourglass-half me-2 text-warning"></i>
+                                <strong>Under Review</strong>
+                            </span>
+                            <span class="badge bg-warning">{{ high_risk }}</span>
+                        </div>
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong>Total Transactions</strong>
+                        <span class="h5 mb-0">{{ today_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Panel -->
+        <div class="col-lg-4">
+            <div class="card card-actions h-100 animate__animated animate__fadeInRight" style="animation-delay: 0.4s;">
+                <div class="card-header py-3">
+                    <h5 class="mb-0 fw-bold text-primary">
+                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <a href="{{ url_for('predict') }}" class="btn btn-gradient w-100 mb-2">
+                        <i class="fas fa-flask me-2"></i>Quick Predict
+                    </a>
+                    <a href="{{ url_for('history') }}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="fas fa-history me-2"></i>View History
+                    </a>
+                    <a href="{{ url_for('chatbot') }}" class="btn btn-outline-secondary w-100 mb-2">
+                        <i class="fas fa-comments me-2"></i>AI Assistant
+                    </a>
+                    <a href="{{ url_for('about') }}" class="btn btn-outline-dark w-100">
+                        <i class="fas fa-info-circle me-2"></i>Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Alerts Section -->
+    <div class="row mt-4">
+        <div class="col-lg-12">
+            <div class="card card-alerts animate__animated animate__fadeInUp" style="animation-delay: 0.5s;">
+                <div class="card-header py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-primary">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Recent Fraud Alerts
+                            {% if recent_alerts %}
+                                <span class="badge bg-danger ms-2">{{ recent_alerts | length }} Active</span>
+                            {% endif %}
+                        </h5>
+                        <a href="{{ url_for('history') }}" class="btn btn-sm btn-outline-primary">
+                            View All <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_alerts %}
+                        <div class="table-responsive">
+                            <table class="table table-hover table-alerts mb-0">
+                                <thead class="table-alert-header">
+                                    <tr>
+                                        <th>
+                                            <i class="fas fa-receipt me-1"></i>Transaction ID
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-coins me-1"></i>Amount (UZS)
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-tachometer-alt me-1"></i>Risk Score
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-clock me-1"></i>Time
+                                        </th>
+                                        <th>
+                                            <i class="fas fa-flag me-1"></i>Status
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for alert in recent_alerts %}
+                                        <tr class="alert-row">
+                                            <td class="fw-bold">
+                                                <span class="badge bg-secondary">#{{ alert.transaction_id }}</span>
+                                            </td>
+                                            <td class="fw-600">{{ "{:,.2f}".format(alert.amount) }}</td>
+                                            <td>
+                                                <div class="risk-score-cell">
+                                                    <div class="progress progress-animated" style="height: 8px;">
+                                                        <div class="progress-bar {% if alert.risk_score > 0.7 %}bg-danger{% elif alert.risk_score > 0.4 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                             style="width: {{ alert.risk_score * 100 }}%"></div>
+                                                    </div>
+                                                    <small class="text-muted fw-600">{{ "{:.2f}".format(alert.risk_score) }}</small>
+                                                </div>
+                                            </td>
+                                            <td class="text-muted small">
+                                                <i class="fas fa-clock me-1 text-secondary"></i>{{ alert.created_at.strftime('%H:%M:%S') }}
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-alert bg-danger animate__animated animate__pulse animate__infinite">
+                                                    <i class="fas fa-exclamation-circle me-1"></i>ALERT
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-success m-3 mb-0 alert-success-custom">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-shield-alt me-3 fa-2x"></i>
+                                <div>
+                                    <h6 class="mb-1">All Clear!</h6>
+                                    <p class="mb-0">No high-risk alerts today. Your transactions are secure and protected.</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Counter animation for KPI numbers
+    function animateCounters() {
+        const counters = document.querySelectorAll('.kpi-number');
+        const decimals = document.querySelectorAll('.kpi-decimal');
+        
+        counters.forEach(counter => {
+            const target = parseFloat(counter.getAttribute('data-target'));
+            let current = 0;
+            const increment = target / 100;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = Math.round(target);
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.round(current);
+                }
+            }, 20);
+        });
+        
+        decimals.forEach(decimal => {
+            const target = parseFloat(decimal.getAttribute('data-target'));
+            let current = 0;
+            const increment = target / 80;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    decimal.textContent = target.toFixed(2);
+                    clearInterval(timer);
+                } else {
+                    decimal.textContent = current.toFixed(2);
+                }
+            }, 20);
+        });
+    }
+    
+    // Time-based greeting
+    function updateTimeGreeting() {
+        const hour = new Date().getHours();
+        let greeting = '';
+        
+        if (hour < 12) {
+            greeting = '🌅 Good Morning!';
+        } else if (hour < 18) {
+            greeting = '☀️ Good Afternoon!';
+        } else {
+            greeting = '🌙 Good Evening!';
+        }
+        
+        const greetingElement = document.querySelector('.time-greeting');
+        if (greetingElement) {
+            greetingElement.textContent = greeting;
+        }
+    }
+
+    // Initialize fraud probability chart
+    const ctxFraud = document.getElementById('fraudChart').getContext('2d');
+    const chartData = {{ chart_data | safe }};
+    
+    const fraudChart = new Chart(ctxFraud, {
+        type: 'line',
+        data: {
+            labels: chartData.labels,
+            datasets: [{
+                label: 'Fraud Probability',
+                data: chartData.data,
+                borderColor: '#003087',
+                backgroundColor: 'rgba(0, 48, 135, 0.1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#00A3E0',
+                pointBorderColor: '#003087',
+                pointBorderWidth: 2,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: '#ff6b6b',
+                pointHoverBorderColor: '#003087',
+                pointHoverBorderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                intersect: false,
+                mode: 'index'
+            },
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        font: {
+                            size: 12,
+                            weight: 600
+                        },
+                        color: '#212529',
+                        padding: 20
+                    }
+                },
+                filler: {
+                    propagate: true
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 1,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        },
+                        color: '#6c757d'
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 11
+                        },
+                        color: '#6c757d'
+                    }
+                }
+            }
+        }
+    });
+
+    // Initialize risk distribution pie chart
+    const ctxRisk = document.getElementById('riskChart');
+    if (ctxRisk) {
+        const riskChart = new Chart(ctxRisk.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Legitimate', 'Fraudulent', 'Under Review'],
+                datasets: [{
+                    data: [
+                        {{ today_count - (today_count * fraud_rate / 100) | int }},
+                        {{ (today_count * fraud_rate / 100) | int }},
+                        {{ high_risk }}
+                    ],
+                    backgroundColor: [
+                        '#28a745',
+                        '#dc3545',
+                        '#ffc107'
+                    ],
+                    borderColor: '#ffffff',
+                    borderWidth: 3,
+                    hoverBorderColor: '#003087',
+                    hoverBorderWidth: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                size: 12,
+                                weight: 600
+                            },
+                            padding: 15,
+                            color: '#212529'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 48, 135, 0.8)',
+                        titleFont: {
+                            size: 12,
+                            weight: 600
+                        },
+                        bodyFont: {
+                            size: 11
+                        },
+                        padding: 12,
+                        displayColors: true,
+                        borderColor: '#00A3E0',
+                        borderWidth: 1
+                    }
+                }
+            }
+        });
+    }
+
+    // Call initialization functions
+    document.addEventListener('DOMContentLoaded', function() {
+        animateCounters();
+        updateTimeGreeting();
+    });
+</script>
+{% endblock %}

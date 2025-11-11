@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+
+{% block title %}AI Chatbot - FraudGuard BFSI{% endblock %}
+
+{% block content %}
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <h1 class="display-6 fw-bold text-primary mb-2">
+            <i class="fas fa-comments me-3"></i>AI Fraud Assistant
+        </h1>
+        <p class="page-description">Ask questions about fraud detection and transaction safety</p>
+    </div>
+
+    <div class="row g-4">
+        <!-- Chat Area - Main Column -->
+        <div class="col-lg-9">
+            <!-- Chat Card -->
+            <div class="card h-100 animate__animated animate__fadeInLeft shadow-lg" style="border-radius: 16px; border: 1px solid rgba(0, 163, 224, 0.15); overflow: hidden;">
+                <!-- Chat Header -->
+                <div class="card-header" style="background: linear-gradient(135deg, #003087 0%, #00A3E0 100%); padding: 1.25rem 1.5rem; border: none;">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h5 class="mb-0 text-white fw-bold d-flex align-items-center">
+                            <i class="fas fa-robot me-3" style="font-size: 1.3rem;"></i>
+                            <span>Chat with FraudGuard AI</span>
+                        </h5>
+                        <span class="badge bg-success" style="font-size: 0.75rem; padding: 0.5rem 0.75rem;">Online</span>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Container -->
+                <div class="card-body p-0 d-flex flex-column" style="min-height: 650px; background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);">
+                    <!-- Messages Area -->
+                    <div id="chatMessages" class="flex-grow-1 overflow-auto px-4 py-3" style="background-color: rgba(248, 249, 250, 0.8);">
+                        <!-- Initial greeting -->
+                        <div class="mb-3 animate__animated animate__fadeIn">
+                            <div class="d-flex gap-3 align-items-flex-start">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: linear-gradient(135deg, #003087 0%, #00A3E0 100%); flex-shrink: 0;">
+                                    <i class="fas fa-robot text-white"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div class="bg-white rounded-3 p-3 shadow-sm" style="max-width: 85%; word-wrap: break-word; border-left: 4px solid #00A3E0;">
+                                        <p class="mb-0" style="color: #333333; font-size: 0.95rem; line-height: 1.5;">
+                                            <i class="fas fa-wave-square me-2" style="color: #00A3E0;"></i>
+                                            <strong>Welcome!</strong> I'm your FraudGuard AI Assistant. I can help you understand fraud detection, transaction safety, and how our advanced models protect your bank.
+                                        </p>
+                                    </div>
+                                    <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">Just now</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 animate__animated animate__fadeIn" style="animation-delay: 0.2s;">
+                            <div class="d-flex gap-3 align-items-flex-start">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: linear-gradient(135deg, #003087 0%, #00A3E0 100%); flex-shrink: 0;">
+                                    <i class="fas fa-robot text-white"></i>
+                                </div>
+                                <div style="flex: 1;">
+                                    <div class="bg-white rounded-3 p-3 shadow-sm" style="max-width: 85%; word-wrap: break-word; border-left: 4px solid #00A3E0;">
+                                        <p class="mb-0" style="color: #333333; font-size: 0.95rem; line-height: 1.5;">
+                                            <i class="fas fa-lightbulb me-2" style="color: #ffc107;"></i>
+                                            <strong>Quick Tips:</strong> Try asking about transaction risk assessment, fraud detection models, or use the quick questions below to get started!
+                                        </p>
+                                    </div>
+                                    <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">Just now</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input Section -->
+                    <div class="border-top px-4 py-3" style="background: linear-gradient(135deg, rgba(0, 163, 224, 0.02) 0%, rgba(248, 249, 250, 0.5) 100%); border-color: rgba(0, 163, 224, 0.2); flex-shrink: 0;">
+                        <form id="chatForm" class="d-flex gap-2">
+                            <input type="text" id="messageInput" class="form-control" 
+                                   placeholder="Type your question here..." required
+                                   style="border: 2px solid rgba(0, 163, 224, 0.2); border-radius: 8px; padding: 0.65rem 1rem; font-size: 0.95rem; transition: all 0.3s ease;"
+                                   onmouseover="this.style.borderColor='rgba(0, 163, 224, 0.4)'"
+                                   onfocus="this.style.borderColor='#00A3E0'; this.style.boxShadow='0 0 0 3px rgba(0, 163, 224, 0.1)'"
+                                   onblur="this.style.borderColor='rgba(0, 163, 224, 0.2)'; this.style.boxShadow='none'">
+                            <button type="submit" class="btn fw-bold d-flex align-items-center justify-content-center" 
+                                    style="background: linear-gradient(135deg, #003087 0%, #00A3E0 100%); color: white; padding: 0.65rem 1.5rem; border-radius: 8px; border: none; transition: all 0.3s ease; min-width: 100px; flex-shrink: 0;"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(0, 48, 135, 0.3)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                <i class="fas fa-paper-plane me-2"></i>Send
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar - Quick Questions & Info -->
+        <div class="col-lg-3">
+            <!-- Quick Questions Card -->
+            <div class="card animate__animated animate__fadeInRight shadow-lg" style="border-radius: 14px; border: 1px solid rgba(0, 163, 224, 0.15); overflow: hidden; margin-bottom: 1.5rem;">
+                <div class="card-header" style="background: linear-gradient(135deg, #003087 0%, #00A3E0 100%); padding: 1rem 1.25rem; border: none;">
+                    <h6 class="mb-0 text-white fw-bold d-flex align-items-center">
+                        <i class="fas fa-zap me-2" style="color: #ffc107; font-size: 1.1rem;"></i>Quick Questions
+                    </h6>
+                </div>
+                <div class="card-body p-3" style="max-height: 650px; overflow-y: auto;">
+                    <div class="d-flex flex-column gap-2">
+                        <!-- Question 1 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('Is a 75M transaction from Russia at 2 AM safe?')"
+                                title="Ask about high-value foreign transactions at night">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-question-circle mt-1" style="color: #dc3545; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">Is a 75M transaction from Russia at 2 AM safe?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 2 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('What factors trigger fraud alerts?')"
+                                title="Learn about fraud detection triggers">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-bell mt-1" style="color: #ffc107; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">What factors trigger fraud alerts?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 3 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('How accurate is the fraud detection model?')"
+                                title="Check model accuracy metrics">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-chart-line mt-1" style="color: #28a745; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">How accurate is the fraud detection model?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 4 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('Are foreign transactions always risky?')"
+                                title="Understand international transaction risks">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-globe mt-1" style="color: #17a2b8; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">Are foreign transactions always risky?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 5 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('What is transaction velocity?')"
+                                title="Learn about transaction velocity analysis">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-tachometer-alt mt-1" style="color: #003087; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">What is transaction velocity?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 6 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('How does the ML model detect fraud patterns?')"
+                                title="Understand machine learning fraud detection">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-brain mt-1" style="color: #00A3E0; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">How does the ML model detect fraud patterns?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 7 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('What is a risk score and how is it calculated?')"
+                                title="Understand risk scoring mechanism">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-calculator mt-1" style="color: #ffc107; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">What is a risk score and how is it calculated?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 8 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('What are rule-based fraud signatures?')"
+                                title="Learn about rule-based fraud detection">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-shield-alt mt-1" style="color: #28a745; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">What are rule-based fraud signatures?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 9 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('How can I use FraudGuard to protect transactions?')"
+                                title="Learn FraudGuard protection features">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-lock mt-1" style="color: #dc3545; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">How can I use FraudGuard to protect transactions?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 10 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('What machine learning models does FraudGuard use?')"
+                                title="Learn about ML models used">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-cube mt-1" style="color: #17a2b8; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">What machine learning models does FraudGuard use?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 11 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('Can I export transaction history and fraud reports?')"
+                                title="Learn about data export features">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-download mt-1" style="color: #003087; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">Can I export transaction history and fraud reports?</small>
+                            </div>
+                        </button>
+
+                        <!-- Question 12 -->
+                        <button type="button" class="quick-question-btn" 
+                                onclick="sendQuickQuestion('What is the AUC accuracy score and why does it matter?')"
+                                title="Understand AUC accuracy metric">
+                            <div class="d-flex gap-2 align-items-start">
+                                <i class="fas fa-percent mt-1" style="color: #28a745; flex-shrink: 0;"></i>
+                                <small style="color: #333333; font-weight: 500; line-height: 1.4;">What is the AUC accuracy score and why does it matter?</small>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Features Card -->
+            <div class="card animate__animated animate__fadeInRight shadow-lg" style="border-radius: 14px; border: 1px solid rgba(0, 163, 224, 0.15); overflow: hidden; animation-delay: 0.1s;">
+                <div class="card-header" style="background: linear-gradient(135deg, #003087 0%, #00A3E0 100%); padding: 1rem 1.25rem; border: none;">
+                    <h6 class="mb-0 text-white fw-bold d-flex align-items-center">
+                        <i class="fas fa-star me-2" style="color: #ffc107; font-size: 1.1rem;"></i>Key Features
+                    </h6>
+                </div>
+                <div class="card-body p-3">
+                    <div class="small" style="color: #555555;">
+                        <div class="mb-3 pb-3 border-bottom" style="border-color: rgba(0, 163, 224, 0.1);">
+                            <p class="mb-1" style="font-weight: 600; color: #003087;">
+                                <i class="fas fa-check-circle me-2" style="color: #28a745;"></i>99.1% AUC Accuracy
+                            </p>
+                            <small style="color: #666666; margin-left: 1.5rem;">Advanced ML models</small>
+                        </div>
+                        <div class="mb-3 pb-3 border-bottom" style="border-color: rgba(0, 163, 224, 0.1);">
+                            <p class="mb-1" style="font-weight: 600; color: #003087;">
+                                <i class="fas fa-zap me-2" style="color: #ffc107;"></i>Real-time Detection
+                            </p>
+                            <small style="color: #666666; margin-left: 1.5rem;">Instant risk scoring</small>
+                        </div>
+                        <div class="mb-3 pb-3 border-bottom" style="border-color: rgba(0, 163, 224, 0.1);">
+                            <p class="mb-1" style="font-weight: 600; color: #003087;">
+                                <i class="fas fa-shield-alt me-2" style="color: #dc3545;"></i>Rule-based Signatures
+                            </p>
+                            <small style="color: #666666; margin-left: 1.5rem;">Advanced rule system</small>
+                        </div>
+                        <div>
+                            <p class="mb-1" style="font-weight: 600; color: #003087;">
+                                <i class="fas fa-chart-bar me-2" style="color: #17a2b8;"></i>25+ Fraud Factors
+                            </p>
+                            <small style="color: #666666; margin-left: 1.5rem;">Comprehensive analysis</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Styles for Quick Question Buttons -->
+    <style>
+        .quick-question-btn {
+            background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+            border: 1px solid rgba(0, 163, 224, 0.1);
+            border-radius: 10px;
+            padding: 0.875rem 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            color: #333333;
+        }
+
+        .quick-question-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 163, 224, 0.08) 0%, rgba(0, 163, 224, 0.05) 100%);
+            border-color: rgba(0, 163, 224, 0.3);
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 163, 224, 0.12);
+            color: #003087;
+        }
+
+        .quick-question-btn:active {
+            transform: translateX(4px) scale(0.98);
+        }
+
+        #chatMessages {
+            scroll-behavior: smooth;
+        }
+
+        /* Scrollbar styling */
+        #chatMessages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatMessages::-webkit-scrollbar-track {
+            background: rgba(0, 163, 224, 0.05);
+        }
+
+        #chatMessages::-webkit-scrollbar-thumb {
+            background: rgba(0, 163, 224, 0.3);
+            border-radius: 3px;
+        }
+
+        #chatMessages::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 163, 224, 0.5);
+        }
+    </style>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatMessages = document.getElementById('chatMessages');
+    const chatForm = document.getElementById('chatForm');
+    const messageInput = document.getElementById('messageInput');
+
+    // Send message function
+    async function sendMessage(message) {
+        if (!message.trim()) return;
+
+        // Add user message to chat
+        const userMessageDiv = document.createElement('div');
+        userMessageDiv.className = 'mb-3 animate__animated animate__fadeIn';
+        userMessageDiv.innerHTML = `
+            <div class="d-flex justify-content-end gap-3 align-items-flex-start">
+                <div style="flex: 1;">
+                    <div class="bg-primary text-white rounded-3 p-3 shadow-sm" style="max-width: 85%; word-wrap: break-word; margin-left: auto; border-left: 4px solid #00A3E0;">
+                        <p class="mb-0" style="font-size: 0.95rem; line-height: 1.5;">${escapeHtml(message)}</p>
+                    </div>
+                    <small class="text-muted d-block mt-2 text-end" style="font-size: 0.8rem;">Just now</small>
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(userMessageDiv);
+
+        // Clear input
+        messageInput.value = '';
+        messageInput.focus();
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Show typing indicator
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'mb-3';
+        typingDiv.innerHTML = `
+            <div class="d-flex gap-3 align-items-flex-start">
+                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: linear-gradient(135deg, #003087 0%, #00A3E0 100%); flex-shrink: 0;">
+                    <i class="fas fa-robot text-white"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div class="bg-white rounded-3 p-3 shadow-sm" style="max-width: 85%; word-wrap: break-word; border-left: 4px solid rgba(0, 163, 224, 0.5);">
+                        <p class="mb-0" style="color: #333333; font-size: 0.95rem; line-height: 1.5;">
+                            <i class="fas fa-spinner fa-spin me-2" style="color: #00A3E0;"></i><span>Thinking...</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        `;
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        try {
+            // Call API
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            // Check if response is OK
+            if (!response.ok) {
+                throw new Error(`API returned status ${response.status}`);
+            }
+
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                console.error('Failed to parse JSON response:', jsonError);
+                throw new Error('Invalid API response');
+            }
+
+            // Remove typing indicator
+            typingDiv.remove();
+
+            // Check if data has bot_message
+            if (!data.bot_message) {
+                throw new Error('No bot message in response');
+            }
+
+            // Add bot response
+            const botMessageDiv = document.createElement('div');
+            botMessageDiv.className = 'mb-3 animate__animated animate__fadeIn';
+            
+            // Determine style based on type
+            let borderColor = '#00A3E0';
+            let iconColor = '#00A3E0';
+            
+            if (data.type === 'success') {
+                borderColor = '#28a745';
+                iconColor = '#28a745';
+            } else if (data.type === 'warning') {
+                borderColor = '#ffc107';
+                iconColor = '#ffc107';
+            } else if (data.type === 'danger') {
+                borderColor = '#dc3545';
+                iconColor = '#dc3545';
+            } else if (data.type === 'info') {
+                borderColor = '#17a2b8';
+                iconColor = '#17a2b8';
+            }
+
+            botMessageDiv.innerHTML = `
+                <div class="d-flex gap-3 align-items-flex-start">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: linear-gradient(135deg, #003087 0%, #00A3E0 100%); flex-shrink: 0;">
+                        <i class="fas fa-robot text-white"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="bg-white rounded-3 p-3 shadow-sm" style="max-width: 85%; word-wrap: break-word; border-left: 4px solid ${borderColor};">
+                            <p class="mb-0" style="color: #333333; font-size: 0.95rem; line-height: 1.5;">${escapeHtml(data.bot_message)}</p>
+                        </div>
+                        <small class="text-muted d-block mt-2" style="font-size: 0.8rem;">Just now</small>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(botMessageDiv);
+        } catch (error) {
+            console.error('Chat error:', error);
+            typingDiv.remove();
+
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'mb-3 animate__animated animate__fadeIn';
+            errorDiv.innerHTML = `
+                <div class="d-flex gap-3 align-items-flex-start">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background: linear-gradient(135deg, #dc3545 0%, #ff6b6b 100%); flex-shrink: 0;">
+                        <i class="fas fa-exclamation-circle text-white"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div class="bg-white rounded-3 p-3 shadow-sm" style="max-width: 85%; word-wrap: break-word; border-left: 4px solid #dc3545;">
+                            <p class="mb-0" style="color: #333333; font-size: 0.95rem; line-height: 1.5;">
+                                Sorry, I encountered an error. Please try again.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            chatMessages.appendChild(errorDiv);
+        }
+
+        // Scroll to bottom
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Form submission
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const message = messageInput.value.trim();
+        if (message) {
+            sendMessage(message);
+        }
+    });
+
+    // Quick question handler
+    function sendQuickQuestion(question) {
+        messageInput.value = question;
+        messageInput.focus();
+        sendMessage(question);
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Auto-focus on input on page load
+    window.addEventListener('load', () => {
+        messageInput.focus();
+    });
+</script>
+{% endblock %}

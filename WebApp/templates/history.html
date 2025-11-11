@@ -1,0 +1,308 @@
+{% extends "base.html" %}
+
+{% block title %}Transaction History - FraudGuard BFSI{% endblock %}
+
+{% block content %}
+    <!-- Page Header -->
+    <div class="page-header mb-4">
+        <div class="row">
+            <div class="col-lg-8">
+                <h1 class="display-6 fw-bold text-primary">
+                    <i class="fas fa-history me-3"></i>Transaction History
+                </h1>
+                <p class="page-description">Review all your fraud detection predictions</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{{ url_for('export_csv') }}" class="btn btn-outline-primary btn-lg fw-bold">
+                    <i class="fas fa-download me-2"></i>Export CSV
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Filter by Risk Level</label>
+                            <select class="form-select" id="riskFilter">
+                                <option value="">All Transactions</option>
+                                <option value="high">High Risk (Alerts)</option>
+                                <option value="medium">Medium Risk</option>
+                                <option value="low">Low Risk (Safe)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Filter by Location</label>
+                            <select class="form-select" id="locationFilter">
+                                <option value="">All Locations</option>
+                                <option value="Tashkent">Tashkent</option>
+                                <option value="Samarkand">Samarkand</option>
+                                <option value="Moscow">Moscow</option>
+                                <option value="Dubai">Dubai</option>
+                                <option value="Russia">Russia</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="row">
+        <div class="col-lg-12">
+            {% if transactions %}
+                <div class="card animate__animated animate__fadeIn">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="width: 15%;">Transaction ID</th>
+                                        <th style="width: 20%;">Date & Time</th>
+                                        <th style="width: 15%;">Amount (UZS)</th>
+                                        <th style="width: 15%;">Location</th>
+                                        <th style="width: 15%;">Risk Score</th>
+                                        <th style="width: 20%;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for tx in transactions %}
+                                        <tr class="transaction-row" data-risk-level="{% if tx.alert_triggered %}high{% elif tx.risk_score > 0.4 %}medium{% else %}low{% endif %}" data-location="{{ tx.location }}">
+                                            <td class="fw-bold">
+                                                <i class="fas fa-receipt me-1 text-muted"></i>#{{ tx.transaction_id }}
+                                            </td>
+                                            <td class="text-muted">
+                                                <i class="fas fa-clock me-1"></i>{{ tx.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                            </td>
+                                            <td class="fw-bold">
+                                                {{ "{:,.2f}".format(tx.amount) }}
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-map-marker-alt me-1 text-muted"></i>{{ tx.location }}
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="progress" style="width: 60px; height: 8px;">
+                                                        <div class="progress-bar {% if tx.risk_score > 0.7 %}bg-danger{% elif tx.risk_score > 0.4 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                             style="width: {{ tx.risk_score * 100 }}%"></div>
+                                                    </div>
+                                                    <span class="badge bg-light text-dark text-monospace">{{ "{:.2f}".format(tx.risk_score) }}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-flex-start justify-content-between gap-2">
+                                                    <div>
+                                                        {% if tx.alert_triggered %}
+                                                            <span class="badge bg-danger">
+                                                                <i class="fas fa-exclamation-circle me-1"></i>ALERT
+                                                            </span>
+                                                            <br>
+                                                            <small class="text-muted d-block mt-1">{{ tx.alert_reasons }}</small>
+                                                        {% elif tx.risk_score > 0.4 %}
+                                                            <span class="badge bg-warning text-dark">
+                                                                <i class="fas fa-exclamation-triangle me-1"></i>MEDIUM
+                                                            </span>
+                                                        {% else %}
+                                                            <span class="badge bg-success">
+                                                                <i class="fas fa-check-circle me-1"></i>SAFE
+                                                            </span>
+                                                        {% endif %}
+                                                    </div>
+                                                    <!-- Details Button -->
+                                                    <button class="btn btn-sm btn-outline-secondary ms-2" data-bs-toggle="modal" data-bs-target="#detailsModal" 
+                                                            onclick="showTransactionDetails('{{ tx.id }}')" style="white-space: nowrap; flex-shrink: 0;">
+                                                        <i class="fas fa-eye"></i> View
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                {% if total_pages > 1 %}
+                    <nav class="mt-4" aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if page > 1 %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1">First</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page - 1 }}">Previous</a>
+                                </li>
+                            {% endif %}
+
+                            {% set start = max(1, page - 2) %}
+                            {% set end = min(total_pages, page + 2) %}
+
+                            {% for p in range(start, end + 1) %}
+                                <li class="page-item {% if p == page %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ p }}">{{ p }}</a>
+                                </li>
+                            {% endfor %}
+
+                            {% if page < total_pages %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ page + 1 }}">Next</a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ total_pages }}">Last</a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+
+                <div class="text-center text-muted mt-3">
+                    <small>Showing {{ transactions | length }} of {{ total_transactions }} transactions</small>
+                </div>
+            {% else %}
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-inbox text-muted" style="font-size: 3rem;"></i>
+                        <p class="text-muted mt-3 mb-0">
+                            No transactions yet. Start by making a prediction!
+                        </p>
+                        <a href="{{ url_for('predict') }}" class="btn btn-primary mt-3">
+                            <i class="fas fa-flask me-2"></i>Make Prediction
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Transaction Details Modal -->
+<div class="modal fade" id="detailsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">
+                    <i class="fas fa-search me-2"></i>Transaction Details
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Filtering logic
+    const riskFilter = document.getElementById('riskFilter');
+    const locationFilter = document.getElementById('locationFilter');
+
+    function applyFilters() {
+        const riskLevel = riskFilter.value;
+        const location = locationFilter.value;
+
+        document.querySelectorAll('.transaction-row').forEach(row => {
+            const rowRisk = row.dataset.riskLevel;
+            const rowLocation = row.dataset.location;
+
+            const riskMatch = !riskLevel || rowRisk === riskLevel;
+            const locationMatch = !location || rowLocation === location;
+
+            row.style.display = riskMatch && locationMatch ? '' : 'none';
+        });
+    }
+
+    riskFilter.addEventListener('change', applyFilters);
+    locationFilter.addEventListener('change', applyFilters);
+
+    // Show transaction details
+    async function showTransactionDetails(txId) {
+        const detailsContent = document.getElementById('detailsContent');
+        detailsContent.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>';
+
+        try {
+            const response = await fetch(`/api/history`);
+            const data = await response.json();
+            const tx = data.data.find(t => t.id === txId);
+
+            if (tx) {
+                const alertBadge = tx.alert_triggered 
+                    ? '<span class="badge bg-danger"><i class="fas fa-exclamation-circle me-1"></i>ALERT</span>'
+                    : tx.risk_score > 0.4
+                    ? '<span class="badge bg-warning text-dark"><i class="fas fa-exclamation-triangle me-1"></i>MEDIUM</span>'
+                    : '<span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>SAFE</span>';
+
+                detailsContent.innerHTML = `
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <strong>Transaction ID:</strong><br>
+                            <code class="text-monospace">${tx.transaction_id}</code>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Date & Time:</strong><br>
+                            ${tx.created_at}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Amount (UZS):</strong><br>
+                            <span class="fw-bold text-primary">${formatCurrency(tx.amount)}</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Location:</strong><br>
+                            <i class="fas fa-map-marker-alt me-1"></i>${tx.location}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Fraud Probability:</strong><br>
+                            <span class="badge bg-light text-dark">${(tx.fraud_probability * 100).toFixed(1)}%</span>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Risk Score:</strong><br>
+                            <span class="badge bg-light text-dark">${tx.risk_score.toFixed(2)}/1.0</span>
+                        </div>
+                        <div class="col-12">
+                            <strong>Status:</strong><br>
+                            ${alertBadge}
+                        </div>
+                        ${tx.alert_reasons ? `<div class="col-12">
+                            <strong>Alert Reasons:</strong><br>
+                            <p class="text-muted mb-0">${tx.alert_reasons}</p>
+                        </div>` : ''}
+                    </div>
+                `;
+            }
+        } catch (error) {
+            detailsContent.innerHTML = '<div class="alert alert-danger">Error loading details</div>';
+        }
+    }
+
+    function formatCurrency(value) {
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'UZS',
+            minimumFractionDigits: 2
+        }).format(value).replace('UZS', '').trim() + ' UZS';
+    }
+
+    // Helper for pages
+    function max(a, b) {
+        return a > b ? a : b;
+    }
+
+    function min(a, b) {
+        return a < b ? a : b;
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,45 @@
+# Datasets (too large for deployment)
+Dataset/
+*.csv
+*.jsonl
+
+# Notebooks (not needed in production)
+notebooks/
+*.ipynb
+
+# Model checkpoints (use only final models)
+models/module_2/
+models/phi3-fraud-detector/checkpoint-*/
+
+# Tests
+tests/
+.pytest_cache/
+
+# Development files
+.vscode/
+.zencoder/
+*.log
+*.tmp
+
+# Documentation (keep only essential)
+DEPLOYMENT.md
+GETTING_STARTED.md
+README_FRAUDGUARD.md
+
+# Output artifacts
+Output/
+
+# Cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Environment
+.env
+.env.local
+venv/
+env/
+
+# OS files
+.DS_Store
+Thumbs.db

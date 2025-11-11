@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Server Error - FraudGuard BFSI{% endblock %}
+
+{% block content %}
+<div class="container-lg">
+    <div class="row">
+        <div class="col-lg-6 mx-auto text-center py-5">
+            <div class="animate__animated animate__fadeIn">
+                <i class="fas fa-exclamation-circle text-danger" style="font-size: 5rem;"></i>
+                <h1 class="display-1 fw-bold text-danger mt-3 mb-2">500</h1>
+                <h2 class="h4 text-dark mb-3">Internal Server Error</h2>
+                <p class="lead text-muted mb-4">
+                    Something went wrong on our end. Our team has been notified and is working to fix it.
+                </p>
+                
+                <div class="d-flex justify-content-center gap-2">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg fw-bold">
+                        <i class="fas fa-home me-2"></i>Back to Dashboard
+                    </a>
+                    <a href="{{ url_for('about') }}" class="btn btn-outline-primary btn-lg fw-bold">
+                        <i class="fas fa-info-circle me-2"></i>About
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,205 @@
+# ============================================================================
+# Python
+# ============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
+*.pyo
+
+# ============================================================================
+# Virtual Environments
+# ============================================================================
+env/
+venv/
+ENV/
+.env
+.venv
+env.bak/
+venv.bak/
+
+# ============================================================================
+# Environment Variables & Secrets
+# ============================================================================
+.env
+.env.local
+.env.*.local
+secrets.json
+credentials.json
+*.pem
+*.key
+
+# ============================================================================
+# IDEs & Editors
+# ============================================================================
+.vscode/
+.zencoder/
+.idea/
+.pytest_cache/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# ============================================================================
+# Operating Systems
+# ============================================================================
+# macOS
+.DS_Store
+.DS_Store?
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+.~lock.*
+
+# ============================================================================
+# Logs
+# ============================================================================
+*.log
+logs/
+server.log
+api.log
+webapp.log
+
+# ============================================================================
+# Flask
+# ============================================================================
+instance/
+.webassets-cache
+
+# ============================================================================
+# Database
+# ============================================================================
+*.db
+*.sqlite
+*.sqlite3
+models/user.db
+
+# ============================================================================
+# Testing
+# ============================================================================
+.pytest_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# ============================================================================
+# Build & Distribution
+# ============================================================================
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+target/
+
+# ============================================================================
+# Jupyter Notebook
+# ============================================================================
+.ipynb_checkpoints
+*.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# ============================================================================
+# Python Tools
+# ============================================================================
+# pyenv
+.python-version
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# mkdocs
+/site
+
+# ============================================================================
+# Node.js (if used)
+# ============================================================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ============================================================================
+# Project Specific
+# ============================================================================
+# Large datasets (not needed in deployment)
+Dataset/
+*.csv
+*.jsonl
+
+# Model checkpoints (keep only final models)
+models/module_2/
+models/phi3-fraud-detector/checkpoint-*/
+
+
+
+# Temporary files
+*.tmp
+*.bak
+*.temp
+.cache/
+*.cache
+
+# Documentation (keep only essential)
+*.pot
+*.mo
+
+# Local development files
+local_settings.py
