@@ -34,8 +34,14 @@ from bson.objectid import ObjectId
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-app = Flask(__name__)
-app.config.from_object('config.DevelopmentConfig')
+app = Flask(__name__, static_folder='static', static_url_path='/static')
+
+# Load configuration based on environment
+env = os.environ.get('FLASK_ENV', 'development')
+if env == 'production':
+    app.config.from_object('config.ProductionConfig')
+else:
+    app.config.from_object('config.DevelopmentConfig')
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -94,7 +100,16 @@ def setup_mongo():
     return client, db, users, transactions, password_resets
 
 
-mongo_client, mongo_db, users_collection, transactions_collection, password_reset_collection = setup_mongo()
+# Initialize MongoDB connections - handle gracefully for Vercel deployment
+try:
+    mongo_client, mongo_db, users_collection, transactions_collection, password_reset_collection = setup_mongo()
+except Exception as e:
+    logger.warning(f"MongoDB setup failed: {e}. App will run in limited mode.")
+    mongo_client = None
+    mongo_db = None
+    users_collection = None
+    transactions_collection = None
+    password_reset_collection = None
 
 _gemini_client = None
 
@@ -172,8 +187,12 @@ def upgrade_user_doc_if_needed(doc, normalized_email):
     return doc
 
 
+def is_db_available():
+    """Check if database is available"""
+    return users_collection is not None
+
 def get_user_by_email(normalized_email):
-    if not normalized_email:
+    if not normalized_email or not is_db_available():
         return None
     email_hash = compute_email_hash(normalized_email)
     user_doc = users_collection.find_one({'email_hash': email_hash})
@@ -504,8 +523,21 @@ def signup():
     return render_template('signup.html')
 
 
+@app.route('/health')
+def health():
+    """Simple health check endpoint for Vercel"""
+    return {
+        'status': 'healthy',
+        'database': 'available' if is_db_available() else 'unavailable',
+        'timestamp': datetime.utcnow().isoformat()
+    }
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if not is_db_available():
+        flash('Database connection unavailable. Please try again later.', 'danger')
+        return render_template('login.html')
+
     if request.method == 'POST':
         email = normalize_email(request.form.get('email', ''))
         password = request.form.get('password', '')
