@@ -11,3 +11,5 @@ pydantic==2.9.2
 torch>=2.0.0
 transformers>=4.30.0
 peft>=0.4.0
+xgboost==2.1.1
+lightgbm==4.5.0
