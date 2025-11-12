@@ -334,7 +334,13 @@ def evaluate_risk(
                 probability = float(result[0][0][0])
         else:
             # joblib pipeline inference (includes preprocessing internally)
-            probability = float(model_obj.predict_proba(frame.drop(columns=["Transaction_ID"], errors="ignore"))[0][1])
+            try:
+                probability = float(model_obj.predict_proba(frame.drop(columns=["Transaction_ID"], errors="ignore"))[0][1])
+            except AttributeError as attr_err:
+                # Handle sklearn version compatibility issues (e.g., monotonic_cst attribute missing)
+                logger.warning(f"predict_proba failed for {model_name} due to sklearn compatibility: {attr_err}. Using predict fallback.")
+                prediction_fallback = model_obj.predict(frame.drop(columns=["Transaction_ID"], errors="ignore"))[0]
+                probability = 1.0 if prediction_fallback == 1 else 0.0
             
     except Exception as exc:
         logger.exception(f"Model inference failed for {model_name}")
@@ -438,7 +444,13 @@ def evaluate_ensemble(
                     probability = float(result[0][0][0])
             else:
                 # joblib pipeline inference
-                probability = float(model_obj.predict_proba(frame.drop(columns=["Transaction_ID"], errors="ignore"))[0][1])
+                try:
+                    probability = float(model_obj.predict_proba(frame.drop(columns=["Transaction_ID"], errors="ignore"))[0][1])
+                except AttributeError as attr_err:
+                    # Handle sklearn version compatibility issues (e.g., monotonic_cst attribute missing)
+                    logger.warning(f"predict_proba failed for {model_name} due to sklearn compatibility: {attr_err}. Using predict fallback.")
+                    prediction_fallback = model_obj.predict(frame.drop(columns=["Transaction_ID"], errors="ignore"))[0]
+                    probability = 1.0 if prediction_fallback == 1 else 0.0
             
             probabilities.append(to_python_type(probability))
             prediction = int(probability > 0.5)
