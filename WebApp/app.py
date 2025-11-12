@@ -494,12 +494,10 @@ def signup():
             flash('Passwords do not match.', 'danger')
             return redirect(url_for('signup'))
 
-        existing_user = get_user_by_email(email)
-        if existing_user:
+        email_hash = compute_email_hash(email)
+        if users_collection.find_one({'email_hash': email_hash}):
             flash('Email already registered.', 'warning')
             return redirect(url_for('login'))
-
-        email_hash = compute_email_hash(email)
         try:
             user_doc = {
                 'full_name_encrypted': encrypt_value(full_name),
