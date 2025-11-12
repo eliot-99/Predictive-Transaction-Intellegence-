@@ -150,25 +150,57 @@ class APITester:
 
     def prepare_transaction_data(self, row: pd.Series) -> Dict[str, Any]:
         """Convert CSV row to API transaction format"""
-        # Remove prediction columns and Transaction_ID (generated server-side)
-        transaction = {}
-        exclude_cols = ["isFraud", "Fraud_Probability", "isFraud_pred", "Transaction_ID"]
+        # Only include fields that match the API Transaction model
+        expected_fields = {
+            "User_ID": int,
+            "Transaction_Amount": float,
+            "Transaction_Location": str,
+            "Merchant_ID": int,
+            "Device_ID": int,
+            "Card_Type": str,
+            "Transaction_Currency": str,
+            "Transaction_Status": str,
+            "Previous_Transaction_Count": int,
+            "Distance_Between_Transactions_km": float,
+            "Time_Since_Last_Transaction_min": int,
+            "Authentication_Method": str,
+            "Transaction_Velocity": int,
+            "Transaction_Category": str,
+            "Transaction_Hour": int,
+            "Transaction_Day": int,
+            "Transaction_Month": int,
+            "Transaction_Weekday": int,
+            "Log_Transaction_Amount": float,
+            "Velocity_Distance_Interact": float,
+            "Amount_Velocity_Interact": float,
+            "Time_Distance_Interact": float,
+            "Hour_sin": float,
+            "Hour_cos": float,
+            "Weekday_sin": float,
+            "Weekday_cos": float
+        }
 
-        for col in row.index:
-            if col not in exclude_cols:
-                value = row[col]
-                # Convert numpy types to Python types
+        transaction = {}
+
+        for field, field_type in expected_fields.items():
+            if field in row.index:
+                value = row[field]
                 if pd.isna(value):
                     continue
+                # Convert numpy types to Python types
                 if isinstance(value, (pd.Int64Dtype().type, pd.Float64Dtype().type)):
                     value = value.item() if hasattr(value, 'item') else float(value)
-                # Ensure proper types for API
-                if col in ["User_ID", "Merchant_ID", "Device_ID", "Previous_Transaction_Count", "Time_Since_Last_Transaction_min", "Transaction_Velocity", "Transaction_Hour", "Transaction_Day", "Transaction_Month", "Transaction_Weekday"]:
-                    transaction[col] = int(float(value))
-                elif col in ["Transaction_Amount", "Distance_Between_Transactions_km", "Log_Transaction_Amount", "Velocity_Distance_Interact", "Amount_Velocity_Interact", "Time_Distance_Interact", "Hour_sin", "Hour_cos", "Weekday_sin", "Weekday_cos"]:
-                    transaction[col] = float(value)
-                else:
-                    transaction[col] = str(value)
+                # Convert to expected type
+                try:
+                    if field_type == int:
+                        transaction[field] = int(float(value))
+                    elif field_type == float:
+                        transaction[field] = float(value)
+                    else:  # str
+                        transaction[field] = str(value)
+                except (ValueError, TypeError):
+                    # Skip invalid values
+                    continue
 
         return transaction
 

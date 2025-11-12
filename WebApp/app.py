@@ -494,8 +494,8 @@ def signup():
             flash('Passwords do not match.', 'danger')
             return redirect(url_for('signup'))
 
-        email_hash = compute_email_hash(email)
-        if users_collection.find_one({'email_hash': email_hash}):
+        existing_user = get_user_by_email(email)
+        if existing_user:
             flash('Email already registered.', 'warning')
             return redirect(url_for('login'))
 
@@ -731,7 +731,7 @@ def predict():
 
             payload = {
                 'User_ID': safe_int(request.form.get('User_ID'), 1),
-                'Transaction_Amount': safe_float(request.form.get('Transaction_Amount'), 0),
+                'Transaction_Amount': safe_float(request.form.get('Transaction_Amount'), 50000.0),  # Default to 50000 instead of 0
                 'Transaction_Location': request.form.get('Transaction_Location', 'Tashkent') or 'Tashkent',
                 'Merchant_ID': safe_int(request.form.get('Merchant_ID'), 1),
                 'Device_ID': safe_int(request.form.get('Device_ID'), 1),
@@ -739,23 +739,23 @@ def predict():
                 'Transaction_Currency': request.form.get('Transaction_Currency', 'UZS') or 'UZS',
                 'Transaction_Status': request.form.get('Transaction_Status', 'Completed') or 'Completed',
                 'Previous_Transaction_Count': safe_int(request.form.get('Previous_Transaction_Count'), 5),
-                'Distance_Between_Transactions_km': safe_float(request.form.get('Distance_Between_Transactions_km'), 0),
+                'Distance_Between_Transactions_km': safe_float(request.form.get('Distance_Between_Transactions_km'), 2.5),
                 'Time_Since_Last_Transaction_min': safe_int(request.form.get('Time_Since_Last_Transaction_min'), 60),
                 'Authentication_Method': request.form.get('Authentication_Method', 'PIN') or 'PIN',
-                'Transaction_Velocity': safe_int(request.form.get('Transaction_Velocity'), 1),
+                'Transaction_Velocity': safe_int(request.form.get('Transaction_Velocity'), 2),
                 'Transaction_Category': request.form.get('Transaction_Category', 'Shopping') or 'Shopping',
-                'Transaction_Hour': safe_int(request.form.get('Transaction_Hour'), 12),
+                'Transaction_Hour': safe_int(request.form.get('Transaction_Hour'), 14),
                 'Transaction_Day': safe_int(request.form.get('Transaction_Day'), 15),
-                'Transaction_Month': safe_int(request.form.get('Transaction_Month'), 6),
-                'Transaction_Weekday': safe_int(request.form.get('Transaction_Weekday'), 2),
-                'Log_Transaction_Amount': safe_float(request.form.get('Log_Transaction_Amount'), 0),
-                'Velocity_Distance_Interact': safe_float(request.form.get('Velocity_Distance_Interact'), 0),
-                'Amount_Velocity_Interact': safe_float(request.form.get('Amount_Velocity_Interact'), 0),
-                'Time_Distance_Interact': safe_float(request.form.get('Time_Distance_Interact'), 0),
-                'Hour_sin': safe_float(request.form.get('Hour_sin'), 0),
-                'Hour_cos': safe_float(request.form.get('Hour_cos'), 1),
-                'Weekday_sin': safe_float(request.form.get('Weekday_sin'), 0),
-                'Weekday_cos': safe_float(request.form.get('Weekday_cos'), 1)
+                'Transaction_Month': safe_int(request.form.get('Transaction_Month'), 11),
+                'Transaction_Weekday': safe_int(request.form.get('Transaction_Weekday'), 3),  # Wednesday
+                'Log_Transaction_Amount': safe_float(request.form.get('Log_Transaction_Amount'), 10.8198),  # log(50000)
+                'Velocity_Distance_Interact': safe_float(request.form.get('Velocity_Distance_Interact'), 5.0),
+                'Amount_Velocity_Interact': safe_float(request.form.get('Amount_Velocity_Interact'), 100000.0),
+                'Time_Distance_Interact': safe_float(request.form.get('Time_Distance_Interact'), 150.0),
+                'Hour_sin': safe_float(request.form.get('Hour_sin'), -0.5),
+                'Hour_cos': safe_float(request.form.get('Hour_cos'), -0.866),
+                'Weekday_sin': safe_float(request.form.get('Weekday_sin'), 0.7818),
+                'Weekday_cos': safe_float(request.form.get('Weekday_cos'), 0.6235)
             }
 
             base_api_url = app.config['FRAUD_API_URL'].replace('/detect', '')
@@ -767,6 +767,7 @@ def predict():
                 logger.info(f'Using single model: {selected_model}')
 
             logger.info(f'Calling fraud detection API: {api_url}')
+            logger.info(f'Payload: {payload}')
             response = requests.post(
                 api_url,
                 json=payload,
@@ -775,6 +776,8 @@ def predict():
             response.raise_for_status()
             result = response.json()
             logger.info(f'API Response: {result}')
+            fraud_prob = result.get('Fraud_Probability', 0)
+            logger.info(f'Fraud Probability: {fraud_prob}')
 
             user_object_id = get_current_user_object_id()
             if not user_object_id:
