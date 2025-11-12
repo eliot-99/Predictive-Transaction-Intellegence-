@@ -481,8 +481,8 @@ def signup():
         institution_name = request.form.get('institution_name', '').strip()
         full_name = request.form.get('full_name', '').strip()
         email = normalize_email(request.form.get('email', ''))
-        password = request.form.get('password', '')
-        confirm_password = request.form.get('confirm_password', '')
+        password = request.form.get('password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
 
         if not all([institution_name, full_name, email, password, confirm_password]):
             flash('All fields are required.', 'danger')
@@ -539,7 +539,7 @@ def login():
 
     if request.method == 'POST':
         email = normalize_email(request.form.get('email', ''))
-        password = request.form.get('password', '')
+        password = request.form.get('password', '').strip()
 
         if not email or not password:
             flash('Email and password required.', 'danger')
@@ -607,8 +607,8 @@ def forgot_password():
                 flash('Reset session expired. Please request a new code.', 'warning')
                 return redirect(url_for('forgot_password'))
             otp_input = request.form.get('otp', '').strip()
-            password_value = request.form.get('password', '')
-            confirm_password = request.form.get('confirm_password', '')
+            password_value = request.form.get('password', '').strip()
+            confirm_password = request.form.get('confirm_password', '').strip()
             if not otp_input or not password_value or not confirm_password:
                 flash('All fields are required.', 'danger')
                 return render_template('forgot_password.html', stage='verify', email=cached_email)
