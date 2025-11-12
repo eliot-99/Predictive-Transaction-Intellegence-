@@ -54,7 +54,7 @@ class APITester:
                 "error": str(e)
             }
 
-    def test_detect_single(self, transaction_data: Dict[str, Any], model: str = None) -> Dict[str, Any]:
+    def test_detect_single(self, transaction_data: Dict[str, Any], model: str = None, expected_fraud: int = None) -> Dict[str, Any]:
         """Test /detect endpoint with single transaction"""
         try:
             url = f"{self.base_url}/detect"
@@ -72,9 +72,9 @@ class APITester:
                 "user_id": transaction_data.get("User_ID"),
                 "response": result,
                 "response_time": response.elapsed.total_seconds(),
-                "expected_fraud": transaction_data.get("isFraud"),
+                "expected_fraud": expected_fraud,
                 "predicted_fraud": result.get("isFraud_pred"),
-                "match": transaction_data.get("isFraud_pred") == result.get("isFraud_pred")
+                "match": expected_fraud == result.get("isFraud_pred") if expected_fraud is not None else None
             }
         except Exception as e:
             return {
@@ -85,19 +85,19 @@ class APITester:
                 "error": str(e)
             }
 
-    def test_detect_all_models(self, transaction_data: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def test_detect_all_models(self, transaction_data: Dict[str, Any], expected_fraud: int = None) -> List[Dict[str, Any]]:
         """Test /detect with all available models"""
         models = ["xgboost", "lightgbm", "random_forest", "logistic_regression", "neural_network"]
         results = []
 
         for model in models:
-            result = self.test_detect_single(transaction_data, model)
+            result = self.test_detect_single(transaction_data, model, expected_fraud)
             results.append(result)
             time.sleep(0.1)  # Small delay to avoid overwhelming the API
 
         return results
 
-    def test_ensemble(self, transaction_data: Dict[str, Any]) -> Dict[str, Any]:
+    def test_ensemble(self, transaction_data: Dict[str, Any], expected_fraud: int = None) -> Dict[str, Any]:
         """Test /ensemble endpoint"""
         try:
             response = self.session.post(f"{self.base_url}/ensemble", json=transaction_data)
@@ -111,9 +111,9 @@ class APITester:
                 "user_id": transaction_data.get("User_ID"),
                 "response": result,
                 "response_time": response.elapsed.total_seconds(),
-                "expected_fraud": transaction_data.get("isFraud"),
+                "expected_fraud": expected_fraud,
                 "predicted_fraud": result.get("isFraud_pred"),
-                "match": transaction_data.get("isFraud_pred") == result.get("isFraud_pred"),
+                "match": expected_fraud == result.get("isFraud_pred") if expected_fraud is not None else None,
                 "models_used": result.get("models_used", [])
             }
         except Exception as e:
@@ -150,9 +150,9 @@ class APITester:
 
     def prepare_transaction_data(self, row: pd.Series) -> Dict[str, Any]:
         """Convert CSV row to API transaction format"""
-        # Remove prediction columns and convert to proper types
+        # Remove prediction columns and Transaction_ID (generated server-side)
         transaction = {}
-        exclude_cols = ["isFraud", "Fraud_Probability", "isFraud_pred"]
+        exclude_cols = ["isFraud", "Fraud_Probability", "isFraud_pred", "Transaction_ID"]
 
         for col in row.index:
             if col not in exclude_cols:
@@ -162,7 +162,13 @@ class APITester:
                     continue
                 if isinstance(value, (pd.Int64Dtype().type, pd.Float64Dtype().type)):
                     value = value.item() if hasattr(value, 'item') else float(value)
-                transaction[col] = value
+                # Ensure proper types for API
+                if col in ["User_ID", "Merchant_ID", "Device_ID", "Previous_Transaction_Count", "Time_Since_Last_Transaction_min", "Transaction_Velocity", "Transaction_Hour", "Transaction_Day", "Transaction_Month", "Transaction_Weekday"]:
+                    transaction[col] = int(float(value))
+                elif col in ["Transaction_Amount", "Distance_Between_Transactions_km", "Log_Transaction_Amount", "Velocity_Distance_Interact", "Amount_Velocity_Interact", "Time_Distance_Interact", "Hour_sin", "Hour_cos", "Weekday_sin", "Weekday_cos"]:
+                    transaction[col] = float(value)
+                else:
+                    transaction[col] = str(value)
 
         return transaction
 
@@ -211,17 +217,18 @@ def run_comprehensive_test(csv_path: str, base_url: str = "https://fraudguard-ap
     def process_sample(sample_data):
         """Process a single sample"""
         transaction = tester.prepare_transaction_data(sample_data)
+        expected_fraud = int(sample_data.get("isFraud", 0))
 
         # Test default detect
-        detect_result = tester.test_detect_single(transaction)
+        detect_result = tester.test_detect_single(transaction, expected_fraud=expected_fraud)
         results["detect_default"].append(detect_result)
 
         # Test all models
-        model_results = tester.test_detect_all_models(transaction)
+        model_results = tester.test_detect_all_models(transaction, expected_fraud=expected_fraud)
         results["detect_models"].extend(model_results)
 
         # Test ensemble
-        ensemble_result = tester.test_ensemble(transaction)
+        ensemble_result = tester.test_ensemble(transaction, expected_fraud=expected_fraud)
         results["ensemble"].append(ensemble_result)
 
         return {
