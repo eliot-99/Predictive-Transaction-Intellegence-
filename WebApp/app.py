@@ -499,6 +499,7 @@ def signup():
             flash('Email already registered.', 'warning')
             return redirect(url_for('login'))
 
+        email_hash = compute_email_hash(email)
         try:
             user_doc = {
                 'full_name_encrypted': encrypt_value(full_name),
