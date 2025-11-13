@@ -18,7 +18,6 @@ from types import SimpleNamespace
 
 from cryptography.fernet import Fernet, InvalidToken
 from dotenv import load_dotenv
-from google import genai
 import requests
 from flask import (
     Flask, render_template, request, redirect, url_for,
@@ -111,19 +110,11 @@ except Exception as e:
     transactions_collection = None
     password_reset_collection = None
 
-_gemini_client = None
-
-def get_gemini_client():
-    global _gemini_client
-    if _gemini_client:
-        return _gemini_client
-    api_key = os.getenv('GEMINI_API_KEY')
+def get_openrouter_client():
+    api_key = os.getenv('OPENROUTER_API_KEY')
     if not api_key:
-        raise RuntimeError('GEMINI_API_KEY is not configured')
-    _gemini_client = genai.Client(api_key=api_key)
-    model_name = os.getenv('GEMINI_MODEL') or 'gemini-2.5-flash'
-    logger.info('Gemini client ready model=%s', model_name)
-    return _gemini_client
+        raise RuntimeError('OPENROUTER_API_KEY is not configured')
+    return api_key
 
 
 def get_cipher():
@@ -412,37 +403,36 @@ def keyword_fallback_response(user_message):
     return response
 
 
-def call_gemini_api(user_message):
-    client = get_gemini_client()
-    model_name = os.getenv('GEMINI_MODEL') or 'gemini-2.5-flash'
+def call_deepseek_api(user_message):
+    api_key = get_openrouter_client()
+    url = "https://openrouter.ai/api/v1/chat/completions"
     guidance = (
         "You are FraudGuard AI, a banking fraud prevention assistant. Provide precise, actionable guidance for banking fraud prevention, "
         "assess the risk level as HIGH, MEDIUM, or LOW, and recommend next steps. Keep responses concise (max 3 sentences). "
         "End the response with a line that states 'Risk classification: <LEVEL>'."
     )
     prompt = f"{guidance}\n\nUser question: {user_message.strip()}"
+    payload = {
+        "model": "deepseek/deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ]
+    }
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "HTTP-Referer": "http://localhost",
+        "X-Title": "FraudGuard Chatbot",
+        "Content-Type": "application/json"
+    }
     try:
-        result = client.models.generate_content(model=model_name, contents=prompt)
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        return data["choices"][0]["message"]["content"]
     except Exception as error:
-        logger.error('Gemini request failed: %s', error)
+        logger.error('DeepSeek API request failed: %s', error)
         raise
-    texts = []
-    primary = getattr(result, 'text', None)
-    if primary:
-        texts.append(primary)
-    candidates = getattr(result, 'candidates', None) or []
-    for candidate in candidates:
-        content = getattr(candidate, 'content', None)
-        parts = getattr(content, 'parts', None) if content else None
-        if parts:
-            for part in parts:
-                value = getattr(part, 'text', None)
-                if value:
-                    texts.append(value)
-    merged = '\n'.join(segment.strip() for segment in texts if segment and segment.strip()).strip()
-    if not merged:
-        raise RuntimeError('Gemini response contained no text')
-    return merged
 
 
 # ==================== AUTHENTICATION HELPERS ====================
@@ -944,15 +934,15 @@ def api_chat():
             return jsonify({'error': 'Empty message'}), 400
 
         try:
-            gemini_raw = call_gemini_api(user_message)
-            bot_message, response_type = interpret_gemini_output(gemini_raw)
+            deepseek_raw = call_deepseek_api(user_message)
+            bot_message, response_type = interpret_gemini_output(deepseek_raw)
             return jsonify({
                 'bot_message': bot_message,
                 'type': response_type,
-                'model': 'gemini-1.5-flash'
+                'model': 'deepseek-chat'
             })
-        except Exception as gemini_error:
-            logger.error(f'Gemini API error: {gemini_error}')
+        except Exception as deepseek_error:
+            logger.error(f'DeepSeek API error: {deepseek_error}')
 
         fallback = keyword_fallback_response(user_message)
         return jsonify(fallback)
