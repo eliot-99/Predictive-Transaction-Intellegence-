@@ -136,39 +136,7 @@
                             </div>
                         </div>
 
-                        <!-- LightGBM -->
-                        <div class="col-md-4 col-sm-6">
-                            <div class="model-card p-3 border rounded-3">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="model-icon me-3">
-                                        <i class="fas fa-lightbulb text-warning fa-2x"></i>
-                                    </div>
-                                    <h6 class="fw-bold text-warning mb-0">LightGBM</h6>
-                                </div>
-                                <p class="text-muted small mb-2">Fast gradient boosting framework with superior performance. Excellent for handling large datasets.</p>
-                                <div class="progress mb-2" style="height: 6px;">
-                                    <div class="progress-bar bg-success" style="width: 98%"></div>
-                                </div>
-                                <small class="text-muted fw-600">98% AUC • Very Fast</small>
-                            </div>
-                        </div>
 
-                        <!-- Random Forest -->
-                        <div class="col-md-4 col-sm-6">
-                            <div class="model-card p-3 border rounded-3">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="model-icon me-3">
-                                        <i class="fas fa-forest text-success fa-2x"></i>
-                                    </div>
-                                    <h6 class="fw-bold text-success mb-0">Random Forest</h6>
-                                </div>
-                                <p class="text-muted small mb-2">Ensemble of decision trees providing robust predictions. Great feature importance analysis.</p>
-                                <div class="progress mb-2" style="height: 6px;">
-                                    <div class="progress-bar bg-success" style="width: 94%"></div>
-                                </div>
-                                <small class="text-muted fw-600">94% AUC • Robust</small>
-                            </div>
-                        </div>
 
                         <!-- Logistic Regression -->
                         <div class="col-md-4 col-sm-6">
@@ -269,8 +237,7 @@
                             <ul class="list-unstyled small">
                                 <li class="mb-2"><i class="fas fa-code me-2 text-success"></i>Flask 3.0 - Web Framework</li>
                                 <li class="mb-2"><i class="fas fa-bolt me-2 text-success"></i>FastAPI 0.115 - API Service</li>
-                                <li class="mb-2"><i class="fas fa-database me-2 text-success"></i>SQLAlchemy - ORM</li>
-                                <li class="mb-2"><i class="fas fa-file-csv me-2 text-success"></i>SQLite - Database</li>
+                                <li class="mb-2"><i class="fas fa-file-csv me-2 text-success"></i>MongoDB - Database</li>
                             </ul>
                         </div>
                         <div class="col-lg-3 col-md-6">
@@ -286,7 +253,6 @@
                             <h6 class="fw-bold text-warning mb-3"><i class="fas fa-brain me-2"></i>Machine Learning</h6>
                             <ul class="list-unstyled small">
                                 <li class="mb-2"><i class="fas fa-cubes me-2 text-warning"></i>XGBoost - Gradient Boosting</li>
-                                <li class="mb-2"><i class="fas fa-cubes me-2 text-warning"></i>LightGBM - Fast Boosting</li>
                                 <li class="mb-2"><i class="fas fa-network-wired me-2 text-warning"></i>TensorFlow/Keras - Deep Learning</li>
                                 <li class="mb-2"><i class="fas fa-exchange me-2 text-warning"></i>ONNX Runtime - Inference</li>
                             </ul>
@@ -364,7 +330,7 @@
                                         <tr>
                                             <td><code class="text-primary">/detect?model=xgboost</code></td>
                                             <td><span class="badge bg-success">POST</span></td>
-                                            <td>Use specific ML model (xgboost, lightgbm, random_forest, logistic_regression, neural_network)</td>
+                                            <td>Use specific ML model (xgboost,logistic_regression, neural_network)</td>
                                             <td>Model-specific prediction with transaction ID</td>
                                         </tr>
                                         <tr>
@@ -390,7 +356,7 @@
                         <div class="col-lg-6">
                             <h6 class="fw-bold text-success mb-3"><i class="fas fa-cogs me-2"></i>API Capabilities</h6>
                             <ul class="list-unstyled small">
-                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i><strong>Multi-Model Support</strong> - 5 trained ML algorithms</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i><strong>Multi-Model Support</strong> - 3 trained ML algorithms</li>
                                 <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i><strong>Ensemble Voting</strong> - Majority voting from all models</li>
                                 <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i><strong>25-Feature Input</strong> - Comprehensive transaction data</li>
                                 <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i><strong>Real-time Inference</strong> - &lt;100ms response time</li>

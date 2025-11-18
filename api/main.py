@@ -25,16 +25,6 @@ AVAILABLE_MODELS = {
         "joblib": str(Path(__file__).parent / "XGBoost_tuned_model.pkl"),
         "type": "gradient_boosting"
     },
-    "lightgbm": {
-        "onnx": str(Path(__file__).parent / "LightGBM_tuned_model.onnx"),
-        "joblib": str(Path(__file__).parent / "LightGBM_tuned_model.pkl"),
-        "type": "gradient_boosting"
-    },
-    "random_forest": {
-        "onnx": str(Path(__file__).parent / "Random_Forest_tuned_model.onnx"),
-        "joblib": str(Path(__file__).parent / "Random_Forest_tuned_model.pkl"),
-        "type": "tree_ensemble"
-    },
     "logistic_regression": {
         "onnx": str(Path(__file__).parent / "Logistic_Regression_tuned_model.onnx"),
         "joblib": str(Path(__file__).parent / "Logistic_Regression_tuned_model.pkl"),
