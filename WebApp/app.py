@@ -369,8 +369,6 @@ def interpret_gemini_output(raw_text):
     else:
         formatted_label = 'Info'
     final_message = message_text if message_text else raw_text.strip()
-    if risk_label:
-        final_message = f"{final_message}\n\nRisk classification: {formatted_label}"
     return final_message, risk_type
 
 
